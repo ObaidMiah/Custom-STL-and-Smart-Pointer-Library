@@ -1,0 +1,116 @@
+cmake_minimum_required(VERSION 3.16)
+
+# Project definition
+project(CustomSTLLibrary
+    VERSION 1.0.0
+    DESCRIPTION "Custom STL and Smart Pointer Library"
+    LANGUAGES CXX
+)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# Compiler-specific options
+if(MSVC)
+    add_compile_options(/W4 /WX)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(/Od /Zi)
+    else()
+        add_compile_options(/O2)
+    endif()
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-g -O0)
+    else()
+        add_compile_options(-O2 -DNDEBUG)
+    endif()
+endif()
+
+# Create an interface library for the vector headers
+add_library(vector_lib INTERFACE)
+target_include_directories(vector_lib INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+target_compile_features(vector_lib INTERFACE cxx_std_17)
+
+# Specify both header files as sources for better IDE support
+target_sources(vector_lib INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/vector.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/vector.hpp>
+)
+
+# Option to build tests
+option(BUILD_TESTS "Build test executables" ON)
+
+if(BUILD_TESTS)
+    # Check for local Google Test installation first
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest_build/install")
+        set(GTest_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/gtest_build/install")
+        message(STATUS "Using local Google Test installation at ${GTest_ROOT}")
+    endif()
+    
+    # Find Google Test (required)
+    find_package(GTest REQUIRED)
+    message(STATUS "Found Google Test, building tests")
+    
+    # Test executable
+    add_executable(test_vector_gtest test/test_vector_gtest.cpp)
+    target_link_libraries(test_vector_gtest 
+        PRIVATE 
+        vector_lib 
+        GTest::gtest_main
+    )
+    
+    # Enable testing
+    enable_testing()
+    add_test(NAME VectorTests COMMAND test_vector_gtest)
+    
+    # Set test properties
+    set_target_properties(test_vector_gtest PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+    )
+endif()
+
+# Installation rules
+include(GNUInstallDirs)
+
+# Install the header files
+install(FILES include/vector.h include/vector.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/custom_stl
+)
+
+# Install the interface library
+install(TARGETS vector_lib
+    EXPORT CustomSTLTargets
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# Create and install the config files
+install(EXPORT CustomSTLTargets
+    FILE CustomSTLTargets.cmake
+    NAMESPACE CustomSTL::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/CustomSTL
+)
+
+# Print configuration summary
+message(STATUS "")
+message(STATUS "Custom STL Library Configuration Summary:")
+message(STATUS "  Version: ${PROJECT_VERSION}")
+message(STATUS "  Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "  C++ standard: ${CMAKE_CXX_STANDARD}")
+message(STATUS "  Build tests: ${BUILD_TESTS}")
+message(STATUS "  Install prefix: ${CMAKE_INSTALL_PREFIX}")
+if(BUILD_TESTS)
+    message(STATUS "  Testing framework: Google Test")
+endif()
+message(STATUS "")

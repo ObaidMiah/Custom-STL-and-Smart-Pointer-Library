@@ -39,7 +39,7 @@ Vector<T>::Vector(size_t count, const T& value) : m_data(nullptr), m_size(0), m_
     {
         reserve(count); 
 
-        for(size_t i; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
         {
             new (m_data+i) T(value); 
         }
@@ -54,7 +54,7 @@ Vector<T>::Vector(const Vector& other) : m_data(nullptr), m_size(0), m_capacity(
     {
         reserve(other.m_capacity); 
 
-        for(size_t i; i < other.m_size; ++i)
+        for(size_t i = 0; i < other.m_size; ++i)
         {
             new (m_data+i) T(other.m_data[i]);
         }
@@ -81,7 +81,33 @@ Vector<T>::~Vector() {
     }
 }
 
+// Element access
+template<typename T>
+T& Vector<T>::operator[](size_t index) {
+    return m_data[index];
+}
+
+template<typename T>
+T* Vector<T>::data() noexcept {
+    return m_data;
+}
+
 // Capacity
+template<typename T>
+bool Vector<T>::empty() const noexcept {
+    return m_size == 0; 
+}
+
+template<typename T>
+size_t Vector<T>::size() const noexcept {
+    return m_size; 
+}
+
+template<typename T>
+size_t Vector<T>::capacity() const noexcept {
+    return m_capacity;
+}
+
 template<typename T>
 void Vector<T>::reserve(size_t new_capacity) {
     if(new_capacity > 0)
@@ -92,10 +118,34 @@ void Vector<T>::reserve(size_t new_capacity) {
 
 // Modifiers
 template<typename T>
+void Vector<T>::push_back(const T& value) {
+    if(m_size == m_capacity)
+    {
+        size_t new_capacity = m_capacity == 0 ? 1 : m_capacity*2; 
+        reserve(new_capacity);
+    }
+
+    new (m_data + m_size) T(value);
+    ++m_size; 
+}
+
+template<typename T>
+void Vector<T>::push_back(T&& value) {
+    if(m_size == m_capacity)
+    {
+        size_t new_capacity = m_capacity == 0 ? 1 : m_capacity*2; 
+        reserve(new_capacity);
+    }
+
+    new (m_data + m_size) T(std::move(value));
+    ++m_size; 
+}
+
+template<typename T>
 void Vector<T>::clear() noexcept {
     if(m_size > 0)
     {
-        for(size_t i; i < m_size; ++i)
+        for(size_t i = 0; i < m_size; ++i)
         {
             m_data[i].~T(); 
         }

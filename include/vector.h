@@ -15,6 +15,12 @@ public:
 
     ~Vector();                             // Destructor
 
+    T& operator[](size_t index);           // Access element at index 
+    T* data() noexcept;                    // Access data pointer
+
+    void push_back(const T& value);        // Add element to end (copy)
+    void push_back(T&& value);             // Add element to end (move)
+
     bool empty() const noexcept;           // Check if vector is empty
     size_t size() const noexcept;          // Get number of elements
     size_t capacity() const noexcept;      // Get current capacity
