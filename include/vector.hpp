@@ -92,6 +92,33 @@ T* Vector<T>::data() noexcept {
     return m_data;
 }
 
+template<typename T>
+T& Vector<T>::at(size_t index) {
+    if(index >= m_size)
+    {
+        throw std::out_of_range("Index out of range");
+    }
+    return m_data[index]; 
+}
+
+template<typename T>
+T& Vector<T>::front() {
+    if(m_size == 0)
+    {
+        throw std::runtime_error("Vector is empty");
+    }
+    return m_data[0];
+}
+
+template<typename T>
+T& Vector<T>::back() {
+    if(m_size == 0)
+    {
+        throw std::runtime_error("Vector is empty");
+    }
+    return m_data[m_size-1];
+}
+
 // Capacity
 template<typename T>
 bool Vector<T>::empty() const noexcept {
@@ -142,6 +169,15 @@ void Vector<T>::push_back(T&& value) {
 }
 
 template<typename T>
+void Vector<T>::pop_back() {
+    if(m_size > 0)
+    {
+        m_data[m_size-1].~T(); 
+        m_size--; 
+    }
+}
+
+template<typename T>
 void Vector<T>::clear() noexcept {
     if(m_size > 0)
     {
@@ -152,6 +188,27 @@ void Vector<T>::clear() noexcept {
     }
 
     m_size = 0; 
+}
+
+// Iterators
+template<typename T>
+T* Vector<T>::begin() noexcept {
+    return m_data; 
+}
+
+template<typename T>
+const T* Vector<T>::cbegin() const noexcept {
+    return m_data;
+}
+
+template<typename T>
+T* Vector<T>::end() noexcept {
+    return m_data + m_size;
+}
+
+template<typename T>
+const T* Vector<T>::cend() const noexcept {
+    return m_data + m_size;
 }
 
 #endif // VECTOR_HPP

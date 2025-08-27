@@ -17,16 +17,24 @@ public:
 
     T& operator[](size_t index);           // Access element at index 
     T* data() noexcept;                    // Access data pointer
-
+    T& at(size_t index);                   // Access element at index
+    T& front();                            // Access first element
+    T& back();                             // Access last element
+    
     void push_back(const T& value);        // Add element to end (copy)
     void push_back(T&& value);             // Add element to end (move)
+    void pop_back();                       // Remove last element
 
     bool empty() const noexcept;           // Check if vector is empty
     size_t size() const noexcept;          // Get number of elements
     size_t capacity() const noexcept;      // Get current capacity
     void reserve(size_t new_capacity);     // Reserve memory for new capacity
-    
     void clear() noexcept;                 // Clear vector elements
+
+    T* begin() noexcept;                   // Get iterator to first element
+    T* end() noexcept;                     // Get iterator to end
+    const T* cbegin() const noexcept;      // Get const iterator to first element
+    const T* cend() const noexcept;        // Get const iterator to end
 
     private:
     T* m_data;           // Pointer to the dynamically allocated array
