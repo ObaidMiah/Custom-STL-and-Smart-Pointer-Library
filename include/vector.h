@@ -30,12 +30,19 @@ public:
     size_t capacity() const noexcept;      // Get current capacity
     void reserve(size_t new_capacity);     // Reserve memory for new capacity
     void clear() noexcept;                 // Clear vector elements
+    void resize(size_t new_size);          // Resize vector to new size
 
     T* begin() noexcept;                   // Get iterator to first element
     T* end() noexcept;                     // Get iterator to end
     const T* cbegin() const noexcept;      // Get const iterator to first element
     const T* cend() const noexcept;        // Get const iterator to end
 
+    bool operator==(const Vector& other) const; // Check if vectors are equal
+    bool operator!=(const Vector& other) const; // Check if vectors are not equal
+
+    Vector& operator=(const Vector& other);       // Copy assignment
+    Vector& operator=(Vector&& other) noexcept;   // Move assignment
+    
     private:
     T* m_data;           // Pointer to the dynamically allocated array
     size_t m_size;       // Current number of elements

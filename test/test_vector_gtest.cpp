@@ -177,6 +177,27 @@ TEST_F(VectorTest, Clear) {
     EXPECT_EQ(vec.capacity(), original_capacity);  // Capacity unchanged
 }
 
+TEST_F(VectorTest, ResizeGrow) {
+    Vector<int> vec(3, 1);
+    vec.resize(6);
+    EXPECT_EQ(vec.size(), 6);
+    EXPECT_EQ(vec[0], 1);  // Original elements preserved
+    EXPECT_EQ(vec[1], 1);
+    EXPECT_EQ(vec[2], 1);
+    EXPECT_EQ(vec[3], 0);  // New elements default-initialized
+    EXPECT_EQ(vec[4], 0);
+    EXPECT_EQ(vec[5], 0);
+}
+
+TEST_F(VectorTest, ResizeShrink) {
+    Vector<int> vec(5, 1);
+    vec.resize(3);
+    EXPECT_EQ(vec.size(), 3);
+    EXPECT_EQ(vec[0], 1);
+    EXPECT_EQ(vec[1], 1);
+    EXPECT_EQ(vec[2], 1);
+}
+
 // Iterator Tests
 TEST_F(VectorTest, BeginEnd) {
     Vector<int> vec;
@@ -237,6 +258,87 @@ TEST_F(VectorTest, STLAlgorithm) {
     EXPECT_EQ(vec[2], 5);
     EXPECT_EQ(vec[3], 8);
     EXPECT_EQ(vec[4], 9);
+}
+
+// Assignment Tests
+TEST_F(VectorTest, CopyAssignment) {
+    Vector<int> vec1(3, 10);
+    Vector<int> vec2(2, 20);
+    
+    vec2 = vec1;
+    
+    EXPECT_EQ(vec2.size(), 3);
+    for (size_t i = 0; i < vec2.size(); ++i) {
+        EXPECT_EQ(vec2[i], 10);
+    }
+}
+
+TEST_F(VectorTest, MoveAssignment) {
+    Vector<int> vec1(3, 10);
+    Vector<int> vec2(2, 20);
+    
+    vec2 = std::move(vec1);
+    
+    EXPECT_EQ(vec2.size(), 3);
+    EXPECT_EQ(vec2[0], 10);
+    EXPECT_EQ(vec1.size(), 0);
+}
+
+// Comparison Tests
+TEST_F(VectorTest, EqualityOperator) {
+    Vector<int> vec1;
+    Vector<int> vec2;
+    
+    vec1.push_back(1);
+    vec1.push_back(2);
+    vec2.push_back(1);
+    vec2.push_back(2);
+    
+    EXPECT_TRUE(vec1 == vec2);
+    EXPECT_FALSE(vec1 != vec2);
+    
+    vec2.push_back(3);
+    EXPECT_FALSE(vec1 == vec2);
+    EXPECT_TRUE(vec1 != vec2);
+}
+
+TEST_F(VectorTest, SelfAssignment) {
+    Vector<int> vec;
+    vec.push_back(1);
+    vec.push_back(2);
+    Vector<int>& vec_ref = vec;
+    
+    vec = vec_ref;  // Self assignment
+    
+    EXPECT_EQ(vec.size(), 2);
+    EXPECT_EQ(vec[0], 1);
+    EXPECT_EQ(vec[1], 2);
+}
+
+// Edge Cases
+TEST_F(VectorTest, EmptyVectorOperations) {
+    Vector<int> vec;
+    
+    // These should not crash but may throw exceptions
+    EXPECT_THROW(vec.front(), std::runtime_error);
+    EXPECT_THROW(vec.back(), std::runtime_error);
+    
+    // Pop on empty vector (behavior may vary)
+    vec.pop_back();  // Should handle gracefully
+    EXPECT_EQ(vec.size(), 0);
+}
+
+TEST_F(VectorTest, LargeVector) {
+    Vector<int> vec;
+    const size_t large_size = 10000;
+    
+    for (size_t i = 0; i < large_size; ++i) {
+        vec.push_back(static_cast<int>(i));
+    }
+    
+    EXPECT_EQ(vec.size(), large_size);
+    EXPECT_EQ(vec[0], 0);
+    EXPECT_EQ(vec[large_size - 1], static_cast<int>(large_size - 1));
 }
 
 int main(int argc, char** argv) {

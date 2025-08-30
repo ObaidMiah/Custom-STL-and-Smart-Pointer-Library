@@ -143,6 +143,30 @@ void Vector<T>::reserve(size_t new_capacity) {
     }
 }
 
+template<typename T>
+void Vector<T>::resize(size_t new_size) {
+    if(new_size > m_capacity)
+    {
+        reserve(new_size);
+    }
+
+    if(new_size > m_size)
+    {
+        for(size_t i = m_size; i < new_size; ++i)
+        {
+            new (m_data + i) T(); 
+        }
+    } 
+    else if(new_size < m_size)
+    {
+        for(size_t i = new_size; i < m_size; ++i)
+        {
+            m_data[i].~T(); 
+        }
+    }
+    m_size = new_size;
+}
+
 // Modifiers
 template<typename T>
 void Vector<T>::push_back(const T& value) {
@@ -209,6 +233,69 @@ T* Vector<T>::end() noexcept {
 template<typename T>
 const T* Vector<T>::cend() const noexcept {
     return m_data + m_size;
+}
+
+// Assignment operators
+template<typename T>
+Vector<T>& Vector<T>::operator=(const Vector& other) {
+    if(this != &other)
+    {
+        clear(); 
+
+        if(other.m_size > 0)
+        {
+            reserve(other.m_size);
+            for(size_t i = 0; i < other.m_size; ++i)
+            {
+                new (m_data + i) T(other.m_data[i]);
+            }
+            m_size = other.m_size; 
+        }
+    }
+    return *this; 
+}
+
+template<typename T>
+Vector<T>& Vector<T>::operator=(Vector&& other) noexcept {
+    if(this != &other)
+    {
+        clear(); 
+        std::free(m_data);
+
+        m_data = other.m_data;
+        m_capacity = other.m_capacity; 
+        m_size = other.m_size; 
+
+        other.m_data = nullptr; 
+        other.m_size = 0; 
+        other.m_capacity = 0; 
+    }
+
+    return *this; 
+}
+
+// Comparison operators
+template<typename T>
+bool Vector<T>::operator==(const Vector& other) const {
+    if(m_size != other.m_size)
+    {
+        return false;
+    }
+
+    for(size_t i = 0; i < m_size; ++i)
+    {
+        if(m_data[i] != other.m_data[i])
+        {
+            return false;
+        }
+    }
+
+    return true; 
+}
+
+template<typename T>
+bool Vector<T>::operator!=(const Vector& other) const {
+   return !(*this == other);
 }
 
 #endif // VECTOR_HPP
