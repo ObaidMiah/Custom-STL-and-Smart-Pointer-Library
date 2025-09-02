@@ -181,6 +181,18 @@ void Vector<T>::push_back(const T& value) {
 }
 
 template<typename T>
+void Vector<T>::push_back_constant(const T& value) {
+    if(m_size == m_capacity)
+    {
+        size_t new_capacity = m_capacity == 0 ? 1 : m_capacity+1; 
+        reserve(new_capacity);
+    }
+
+    new (m_data + m_size) T(value);
+    ++m_size; 
+}
+
+template<typename T>
 void Vector<T>::push_back(T&& value) {
     if(m_size == m_capacity)
     {

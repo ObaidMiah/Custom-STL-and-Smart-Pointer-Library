@@ -21,9 +21,10 @@ public:
     T& front();                            // Access first element
     T& back();                             // Access last element
     
-    void push_back(const T& value);        // Add element to end (copy)
-    void push_back(T&& value);             // Add element to end (move)
-    void pop_back();                       // Remove last element
+    void push_back(const T& value);             // Add element to end exp (copy)
+    void push_back_constant(const T& value);    // Add element to end const (copy)
+    void push_back(T&& value);                  // Add element to end (move)
+    void pop_back();                            // Remove last element
 
     bool empty() const noexcept;           // Check if vector is empty
     size_t size() const noexcept;          // Get number of elements

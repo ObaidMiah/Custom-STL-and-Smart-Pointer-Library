@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "vector.h"
+#include "../include/vector.h"
 #include <string>
 #include <algorithm>
 
@@ -103,8 +103,27 @@ TEST_F(VectorTest, PushBack) {
     Vector<int> vec;
     
     vec.push_back(1);
+    EXPECT_EQ(vec.capacity(), 1);
     vec.push_back(2);
+    EXPECT_EQ(vec.capacity(), 2);
     vec.push_back(3);
+    EXPECT_EQ(vec.capacity(), 4);
+    
+    EXPECT_EQ(vec.size(), 3);
+    EXPECT_EQ(vec[0], 1);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 3);
+}
+
+TEST_F(VectorTest, PushBackConst) {
+    Vector<int> vec;
+    
+    vec.push_back_constant(1);
+    EXPECT_EQ(vec.capacity(), 1);
+    vec.push_back_constant(2);
+    EXPECT_EQ(vec.capacity(), 2);
+    vec.push_back_constant(3);
+    EXPECT_EQ(vec.capacity(), 3);
     
     EXPECT_EQ(vec.size(), 3);
     EXPECT_EQ(vec[0], 1);
